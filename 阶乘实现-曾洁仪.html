@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>阶乘</title>
+</head>
+<body>
+	<script>
+		/*
+		 * 参数判断 
+		 * n只能为正整数
+		*/
+		function judgeParameter(n){
+			if(!Number.isInteger(n) || n < 0){
+				throw RangeError(`参数n必须为正整数`);
+			}
+		}
+
+
+		/*
+		 * 递归实现
+		*/
+		function factorial_recursion(n){
+			//入参判断
+			judgeParameter(n);
+
+			if(n <= 1) return 1;
+
+			return BigInt(n) * BigInt(factorial_recursion(n-1))
+		}
+
+		/*
+		 * 平方差实现
+		 * 逻辑：将阶乘转换为若干个平方差的积，得出规律为平方差之间的差是连续的奇数
+		*/
+		function factorial_square(n){
+			//入参判断
+			judgeParameter(n);
+
+			if(n <= 1) return 1;
+
+			const middle = Math.ceil(n / 2);	//取中间值
+
+			let tmp = middle * middle,
+				result = n & 1 == 1 ? middle : middle * n;	//奇偶数的基础乘数规律不同
+
+			for(let i = 1 ; i <= n - 2 ; i += 2){	//连续减奇数得出各项乘数
+				tmp -= i;
+				result = BigInt(result) * BigInt(tmp);
+			}
+
+			return result;
+		}
+
+
+		/*
+		* 数组存储位数实现：
+		* 1.用数组存储结果的每位数
+		* 2.从1开始往上相乘，每次都去结算每位数的结果，并将进位记录下来，再下一位数计算时加上进位
+		* 3.由于数组是按个、十、百...向左存储，最后的结果需要将数组反转再拼接起来得出结果
+		*/
+
+		function factorial_array(n){
+			//入参判断
+			judgeParameter(n);
+
+			let result = [1],	//存储结果
+				digit = 1,		//位数，从第1位开始
+				count , 		//每次计算的结果
+				num , 			//阶乘的计算到的第几个
+				i , 			//result中每一项
+				carry;			//每次得数的进位
+
+			for(num = 2 ; num <= n ; num++){
+				for(i = 1 , carry = 0 ; i <= digit ; i++){
+					count = result[i - 1] * num + carry;		//每一项计算结果
+					result[i - 1] = count % 10;					//将一个数的每一位数利用数组进行储存
+					carry = (count - result[i - 1]) / 10		//记录进位
+				}
+
+				while (carry) {	//如果还有进位，继续存储
+					result[digit] = carry % 10;
+					carry = (carry - result[digit]) / 10;
+					digit++;
+				}
+			}
+			return result.reverse().join("");
+		}
+
+		console.time('递归实现运行时间：')
+		factorial_recursion(10000);	//耗时约0.04s
+		console.timeEnd('递归实现运行时间：')
+
+		console.time('平方差实现运行时间：')
+		factorial_square(10000);	//耗时约0.03s
+		console.timeEnd('平方差实现运行时间：')	
+
+		console.time('数组存储位数实现运行时间：')
+		factorial_array(10000);	//耗时约1.1s
+		console.timeEnd('数组存储位数实现运行时间：')	
+
+	</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
